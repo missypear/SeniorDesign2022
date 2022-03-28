@@ -1,17 +1,3 @@
-/* cricket
- *  
- *  CSE 132 - Assignment 3
- *  
- *  Fill this out so we know whose assignment this is.
- *  
- *  Name: Max Yu
- *  WUSTL Key: maxwell.yu
- *  
- *  and if two are partnered together
- *  
- *  Name: Evin Jaff
- *  WUSTL Key: evin
- */
 #define FILTER_COUNTS 4
 const int TEMP_PIN = 1;
 const int LED_PIN = 13;
@@ -30,40 +16,54 @@ void setup() {
   Serial.begin(9600);
   analogReference(INTERNAL);
   pinMode(LED_PIN, OUTPUT);
-  for (int i = 0; i < FILTER_COUNTS; i++) {
-    address_average(analogRead(TEMP_PIN));
-  }
+//  for (int i = 0; i < FILTER_COUNTS; i++) {
+//    address_average(analogRead(TEMP_PIN));
+//  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  unsigned long time = millis();
-  if (time > nextTime) {
-    
-//    Serial.println(analogRead(TEMP_PIN));
-    nextTime += delta;
 
-    address_average(analogRead(TEMP_PIN));
-    Serial.print(" ");
-    Serial.println(getAvg());
+  int value = analogRead(TEMP_PIN);
+
+  Serial.println(value);
+
+  if(value > 70){
+    digitalWrite(13, HIGH);
   }
-  if (time > nextChirp) {
-    cricketDelta = 60000/(7*getAvg()-30);
-    nextChirp+= cricketDelta;
-    if (cricketDelta < 200) {
-      Serial.println(cricketDelta);
-    } else {
-      isOn = true;
-      digitalWrite(LED_PIN, HIGH);
-      nextOff = time + BLINK_DURATION;
-    }
+  else{
+    digitalWrite(13, LOW);
   }
-  if (isOn) {
-    if (time > nextOff) {
-      isOn = false;
-      digitalWrite(LED_PIN, LOW);
-    }
-  }
+  
+  delay(100);
+  
+  // put your main code here, to run repeatedly:
+//  unsigned long time = millis();
+//  if (time > nextTime) {
+//    
+////    Serial.println(analogRead(TEMP_PIN));
+//    nextTime += delta;
+//
+//    address_average(analogRead(TEMP_PIN));
+//    Serial.print(" ");
+//    Serial.println(getAvg());
+//  }
+//  if (time > nextChirp) {
+//    cricketDelta = 60000/(7*getAvg()-30);
+//    nextChirp+= cricketDelta;
+//    if (cricketDelta < 200) {
+//      Serial.println(cricketDelta);
+//    } else {
+//      isOn = true;
+//      digitalWrite(LED_PIN, HIGH);
+//      nextOff = time + BLINK_DURATION;
+//    }
+//  }
+//  if (isOn) {
+//    if (time > nextOff) {
+//      isOn = false;
+//      digitalWrite(LED_PIN, LOW);
+//    }
+//  }
 }
 
 void address_average(short value){
