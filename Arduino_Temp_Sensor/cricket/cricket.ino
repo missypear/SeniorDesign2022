@@ -1,21 +1,17 @@
-#define FILTER_COUNTS 4
+#define FILTER_COUNTS 3
 const int PROBE_ONE = 1;
 const int PROBE_TWO = 2;
-const int LED_PWM_GRN = 3;
-const int LED_PWM_RED = 5;
 
-
+const int SPEAKER_PIN = 7;
 const int LED_PIN = 9;
 const int LED_PIN_TWO = 13;
 
 int cache_ONE [FILTER_COUNTS];
 int cache_TWO [FILTER_COUNTS];
 
+unsigned int THERM_ONE_THRESHOLD = 370;
 
-
-
-
-
+unsigned int THERM_TWO_THRESHOLD = 400;
 
 short addr_ONE = 0;
 short addr_TWO = 0;
@@ -45,6 +41,7 @@ void setup() {
   analogReference(INTERNAL);
   pinMode(LED_PIN, OUTPUT);
   pinMode(LED_PIN_TWO, OUTPUT);
+  pinMode(SPEAKER_PIN, OUTPUT);
   for (int i = 0; i < FILTER_COUNTS; i++) {
     address_average_ONE(analogRead(PROBE_ONE));
     address_average_TWO(analogRead(PROBE_TWO));
@@ -78,6 +75,16 @@ void loop() {
 
     float avgone = getAvg_ONE();
     float avgtwo = getAvg_TWO();
+
+    
+    
+    //Cheap code to fire a speaker
+    if(avgone > THERM_ONE_THRESHOLD || avgtwo > THERM_TWO_THRESHOLD){
+      digitalWrite(SPEAKER_PIN, HIGH);
+    }
+    else{
+      digitalWrite(SPEAKER_PIN, LOW);
+    }
 
     
     Serial.print("ONE ");
