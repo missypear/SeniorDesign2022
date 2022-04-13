@@ -5,7 +5,8 @@ const int PROBE_TWO = 2;
 const int SPEAKER_PIN = 7;
 const int LED_PIN = 9;
 const int LED_PIN_TWO = 13;
-const int SAMPLING_PIN = 4;
+const int THRESH_PIN_ONE = 4;
+const int THRESH_PIN_TWO = 5;
 
 int cache_ONE [FILTER_COUNTS];
 int cache_TWO [FILTER_COUNTS];
@@ -72,7 +73,8 @@ void loop() {
 
     //Change filter counts
 
-    THERM_ONE_THRESHOLD = analogRead(SAMPLING_PIN);
+    THERM_ONE_THRESHOLD = analogRead(THRESH_PIN_ONE);
+    THERM_TWO_THRESHOLD = analogRead(THRESH_PIN_TWO);
   
     address_average_ONE(analogRead(PROBE_ONE));
     address_average_TWO(analogRead(PROBE_TWO));
@@ -97,6 +99,8 @@ void loop() {
 
     Serial.print(" ONE MAX: ");
     Serial.print(THERM_ONE_THRESHOLD);
+    Serial.print(" TWO MAX: ");
+    Serial.print(THERM_TWO_THRESHOLD);
     Serial.print(" ONE ");
     Serial.print(avgone);
     Serial.print("  Velocity ");
