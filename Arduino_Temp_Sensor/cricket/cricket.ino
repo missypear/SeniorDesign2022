@@ -1,20 +1,31 @@
-#define FILTER_COUNTS 3
+const short FILTER_COUNTS = 3;
 const int PROBE_ONE = 1;
 const int PROBE_TWO = 2;
 
 const int SPEAKER_PIN = 7;
 const int LED_PIN = 9;
 const int LED_PIN_TWO = 13;
+const int SAMPLING_PIN = 4;
 
 int cache_ONE [FILTER_COUNTS];
 int cache_TWO [FILTER_COUNTS];
 
-unsigned int THERM_ONE_THRESHOLD = 370;
+int avg_long_cache_ONE [FILTER_COUNTS];
 
-unsigned int THERM_TWO_THRESHOLD = 400;
+float velocity_ONE = 0;
+float velocity_TWO = 0;
+
+unsigned long timing_freq = 200;
+
+unsigned int THERM_ONE_THRESHOLD = 425;
+
+unsigned int THERM_TWO_THRESHOLD = 425;
 
 short addr_ONE = 0;
 short addr_TWO = 0;
+
+short aalgONE;
+short aalgTWO;
 
 
 
@@ -49,17 +60,6 @@ void setup() {
 }
 
 void loop() {
-
-//  int value = analogRead(TEMP_PIN);
-//
-//  //Serial.println(value);
-//
-//  if(value > 70){
-//    digitalWrite(13, HIGH);
-//  }
-//  else{
-//    digitalWrite(13, LOW);
-//  }
   
   //delay(100);
   
@@ -70,13 +70,22 @@ void loop() {
 //    Serial.println(analogRead(TEMP_PIN));
     nextTime += delta;
 
+    //Change filter counts
+
+    THERM_ONE_THRESHOLD = analogRead(SAMPLING_PIN);
+  
     address_average_ONE(analogRead(PROBE_ONE));
     address_average_TWO(analogRead(PROBE_TWO));
 
     float avgone = getAvg_ONE();
     float avgtwo = getAvg_TWO();
 
-    
+    float sum = 0;
+    for (short i = 0; i < FILTER_COUNTS; ++i) {
+      sum += (float) avg_long_cache_ONE[i];
+    }
+
+    velocity_ONE = (sum/FILTER_COUNTS);
     
     //Cheap code to fire a speaker
     if(avgone > THERM_ONE_THRESHOLD || avgtwo > THERM_TWO_THRESHOLD){
@@ -86,9 +95,12 @@ void loop() {
       digitalWrite(SPEAKER_PIN, LOW);
     }
 
-    
-    Serial.print("ONE ");
+    Serial.print(" ONE MAX: ");
+    Serial.print(THERM_ONE_THRESHOLD);
+    Serial.print(" ONE ");
     Serial.print(avgone);
+    Serial.print("  Velocity ");
+    Serial.print(velocity_ONE);
     Serial.print("  TWO ");
     Serial.println(avgtwo);
   }
@@ -142,6 +154,16 @@ void loop() {
   
 }
 
+void address_avg_long_cache_ONE(short value){
+  if(aalgONE > FILTER_COUNTS){
+    aalgONE = 0;  
+  }
+  cache_ONE[aalgONE] = value;
+  aalgONE++;
+
+  
+}
+
 void address_average_ONE(short value){
 
   if(addr_ONE > FILTER_COUNTS-1){
@@ -166,11 +188,26 @@ void address_average_TWO(short value){
 
 float getAvg_ONE(){
   float sum = 0;
+
+  float velocity_sum = 0;
+  
   for (int i = 0; i < FILTER_COUNTS; ++i) {
     sum += (float)cache_ONE[i];
+//    if(i > 1){
+//      velocity_sum += (cache_ONE[i] - cache_ONE[i-1]);
+//    }
+    //Also update the "velocity" of the heat
   }
+
+ 
+
+  
   //float temp = (1.1*((sum/FILTER_COUNTS)/1024))*100-50;
   float temp = (sum/FILTER_COUNTS);
+
+  address_avg_long_cache_ONE(temp);
+
+  
   return temp;
 }
 
